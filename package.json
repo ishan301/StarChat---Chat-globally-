@@ -1,0 +1,23 @@
+{
+  "name": "starchat",
+  "version": "1.0.0",
+  "description": "socket.io app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ishan301/Chat_App.git"
+  },
+  "author": "Ishan Khandelwal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ishan301/Chat_App/issues"
+  },
+  "homepage": "https://github.com/ishan301/Chat_App#readme",
+  "dependencies": {
+    "express": "^4.17.3",
+    "socket.io": "^4.4.1"
+  }
+}
