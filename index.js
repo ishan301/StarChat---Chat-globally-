@@ -9,19 +9,21 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
+const users = {};
 
 io.on('connection', (socket) => {
-    console.log('a user connected');
+    socket.on('new-user',name=>{
+      users[socket.id]=name;
+      socket.broadcast.emit('user-joined',name);
+    });
+    socket.on('send',message=>{
+      socket.broadcast.emit('receive',{msg:message.msg,user:message.user, position:'left'});
+    })
     socket.on('disconnect', () => {
       console.log('user disconnected');
     });
   });
-  io.on('connection', (socket) => {
-    socket.on('chat message', (msg) => {
-      io.emit('chat message', msg);
-    });
-  });
 
 server.listen(80, () => {
-  console.log('listening on 80');
+  console.log('listening on port 80');
 });

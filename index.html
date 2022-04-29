@@ -9,18 +9,32 @@
       padding-bottom: 3rem;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
+    body::before{
+      content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /* background: url('https://source.unsplash.com/random/?landscapes') no-repeat center center/cover; */
+    background-color: greenyellow;
+    z-index: -1;
+    opacity: .6;
+    }
 
-    h2{
+    h2 {
+      margin: 0;
       text-align: center;
     }
 
-    .container{
-      border: 5px solid black;
+    #container {
+      border: 2px solid black;
       margin: 10px;
       padding: 10px;
       height: 80vh;
       border-radius: 20px;
+      overflow-y: auto;
     }
+
+    
 
     #form {
       background: rgba(0, 0, 0, 0.15);
@@ -47,6 +61,20 @@
       outline: none;
     }
 
+    .left{
+      float: left;
+      clear: both;
+    }
+    .right{
+      float: right;
+      clear: both;
+    }
+    .center{
+      clear: both;
+      text-align: center;
+      background-color: none;
+    }
+
     #form>button {
       background: rgb(23, 128, 234);
       border: 2px solid black;
@@ -59,51 +87,76 @@
 
     #messages {
       list-style-type: none;
-      margin: 0;
       padding: 0;
+      display: block;
     }
-
+    
     #messages>li {
+      border-radius: 20px;
+      background-color: rgb(41, 185, 237);
+      margin: 10px;
+      font-size: x-large;
+      font-weight: bold;
       padding: 0.5rem 1rem;
-    }
-
-    #messages>li:nth-child(odd) {
-      background: #efefef;
     }
   </style>
 </head>
-
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 <body>
-  <h2><u>StarChat - Chat Globally!</u></h2>
-  <div class="container">
+  <h2>
+    <ion-icon name="chatbubbles" size="large"></ion-icon>
+    <u>StarChat - Chat Globally!</u></h2>
+  <div id="container">
     <ul id="messages"></ul>
   </div>
   <form id="form" action="">
-    <input id="input" autocomplete="off" /><button>Send</button>
+    <input id="input" autocomplete="off" /><button>
+      <ion-icon name="send-outline"></ion-icon>
+    </button>
   </form>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
   <script>
-    var socket = io();
+    let socket = io();
+    
+    let messages = document.getElementById('messages');
+    let form = document.getElementById('form');
+    let input = document.getElementById('input');
 
-    var messages = document.getElementById('messages');
-    var form = document.getElementById('form');
-    var input = document.getElementById('input');
+    let name = prompt("Enter Your name");
+    while(!name)
+    name=prompt("Enter your Name");
+    socket.emit('new-user',name);
+
+    socket.on('user-joined',name=>{
+      const user = document.createElement('li');
+      user.textContent=`${name} joined the chat`;
+      user.classList.add('center');
+      messages.append(user);
+    });
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (input.value) {
-        socket.emit('chat message', input.value);
+        socket.emit('send', {msg:input.value, user:name,position:'right'});
+        const item = document.createElement('li');
+        item.textContent = `You: ${input.value}`;
+        item.classList.add('right');  
+        messages.append(item);
+        container.scrollTop = container.scrollHeight;
         input.value = '';
       }
     });
 
-    socket.on('chat message', function (msg) {
-      var item = document.createElement('li');
-      item.textContent = msg;
-      messages.appendChild(item);
-      window.scrollTo(0, document.body.scrollHeight);
+    socket.on('receive', message=> {
+      const container = document.getElementById('container');
+      const item = document.createElement('li');
+      item.textContent = message.user +': '+message.msg;
+      item.classList.add(message.position);  
+      messages.append(item);
+      container.scrollTop = container.scrollHeight;
     });
+
   </script>
 </body>
 
