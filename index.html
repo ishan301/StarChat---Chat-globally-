@@ -65,8 +65,10 @@
     .left{
       float: left;
       clear: both;
+      background-color: white;
     }
     .right{
+      background-color: aquamarine;
       float: right;
       clear: both;
     }
@@ -94,7 +96,7 @@
     
     #messages>li {
       border-radius: 20px;
-      background-color: rgb(41, 185, 237);
+      /* background-color: rgb(41, 185, 237); */
       margin: 10px;
       font-size: x-large;
       font-weight: bold;
@@ -157,6 +159,13 @@
       messages.append(item);
       container.scrollTop = container.scrollHeight;
     });
+
+    socket.on('user-left',name=>{
+      const user = document.createElement('li');
+      user.textContent=`${name} left the chat`;
+      user.classList.add('center');
+      messages.append(user);
+    })
 
   </script>
 </body>

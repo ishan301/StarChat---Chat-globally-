@@ -20,7 +20,8 @@ io.on('connection', (socket) => {
       socket.broadcast.emit('receive',{msg:message.msg,user:message.user, position:'left'});
     })
     socket.on('disconnect', () => {
-      console.log('user disconnected');
+      socket.broadcast.emit('user-left',users[socket.id]);
+      delete users[socket.id];
     });
   });
 
