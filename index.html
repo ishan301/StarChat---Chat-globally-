@@ -9,16 +9,17 @@
       padding-bottom: 3rem;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
-    body::before{
+
+    body::before {
       content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: url('https://source.unsplash.com/random/?landscapes') no-repeat center center/cover;
-    /* background: url('https://random.imagecdn.app/') no-repeat center center/cover; */
-    /* background-color: greenyellow; */
-    z-index: -1;
-    opacity: .6;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: url('https://source.unsplash.com/random/?landscapes') no-repeat center center/cover;
+      /* background: url('https://random.imagecdn.app/') no-repeat center center/cover; */
+      /* background-color: greenyellow; */
+      z-index: -1;
+      opacity: .6;
     }
 
     h2 {
@@ -35,7 +36,7 @@
       overflow-y: auto;
     }
 
-    
+
 
     #form {
       background: rgba(0, 0, 0, 0.15);
@@ -62,20 +63,68 @@
       outline: none;
     }
 
-    .left{
+    .left {
       float: left;
+      max-width: 50%;
       clear: both;
       background-color: white;
     }
-    .right{
+
+    .right {
       background-color: aquamarine;
       float: right;
       clear: both;
+      max-width: 50%;
     }
-    .center{
+
+    .center {
       clear: both;
       text-align: center;
       background-color: none;
+    }
+    #online{
+      animation-name: blinky;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+    }
+    #heading{
+      animation-name: blinky2;
+      animation-duration: 12s;
+      animation-iteration-count: infinite;
+    }
+    @keyframes blinky2{
+      0%{
+        color: black;
+      }
+      15%{
+        color: blueviolet;
+      }
+      30%{
+        color: rgb(30, 88, 237);
+      }
+      50%{
+        color: orange;
+      }
+      70%{
+        color: rgb(16, 244, 118);
+      }
+      75%{
+        color: rgb(221, 33, 193);
+      }
+      100%{
+        color: black;
+      }
+    }
+    @keyframes blinky{
+      0%{
+        color: black;
+      }
+      50%{
+        color: rgb(35, 196, 158);
+      }
+      100%{
+        color: black;
+      }
     }
 
     #form>button {
@@ -93,10 +142,9 @@
       padding: 0;
       display: block;
     }
-    
+
     #messages>li {
       border-radius: 20px;
-      /* background-color: rgb(41, 185, 237); */
       margin: 10px;
       font-size: x-large;
       font-weight: bold;
@@ -106,10 +154,13 @@
 </head>
 <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
 <body>
-  <h2>
+  <h2 id="heading">
     <ion-icon name="chatbubbles" size="large"></ion-icon>
-    <u>StarChat - Chat Globally!</u></h2>
+    <u>StarChat - Chat Globally!</u>
+  </h2>
+  <h2 id="online"></h2>
   <div id="container">
     <ul id="messages"></ul>
   </div>
@@ -121,48 +172,57 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>
     let socket = io();
-    
+
     let messages = document.getElementById('messages');
     let form = document.getElementById('form');
     let input = document.getElementById('input');
+    let online=document.getElementById('online');
 
     let name = prompt("Enter Your name");
-    while(!name)
-    name=prompt("Enter your Name");
-    socket.emit('new-user',name);
+    while (!name)
+      name = prompt("Enter your Name");
 
-    socket.on('user-joined',name=>{
+    socket.emit('new-user', name);
+
+    socket.on('user-joined', msg => {
       const user = document.createElement('li');
-      user.textContent=`${name} joined the chat`;
+      user.textContent = `${msg.name} joined the chat`;
       user.classList.add('center');
       messages.append(user);
     });
+    
+    socket.on('accepted',onlineUsers=>{
+      console.log('entering');
+      online.textContent=`Online: ${onlineUsers}`;
+    })
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (input.value) {
-        socket.emit('send', {msg:input.value, user:name,position:'right'});
+        socket.emit('send', { msg: input.value, user: name, position: 'right' });
         const item = document.createElement('li');
         item.textContent = `You: ${input.value}`;
-        item.classList.add('right');  
+        item.classList.add('right');
         messages.append(item);
         container.scrollTop = container.scrollHeight;
         input.value = '';
       }
     });
 
-    socket.on('receive', message=> {
+    socket.on('receive', message => {
       const container = document.getElementById('container');
       const item = document.createElement('li');
-      item.textContent = message.user +': '+message.msg;
-      item.classList.add(message.position);  
+      item.textContent = message.user + ': ' + message.msg;
+      item.classList.add(message.position);
       messages.append(item);
       container.scrollTop = container.scrollHeight;
     });
 
-    socket.on('user-left',name=>{
+    socket.on('user-left', msg => {
+      
+      online.textContent=`Online: ${msg.online}`;
       const user = document.createElement('li');
-      user.textContent=`${name} left the chat`;
+      user.textContent = `${msg.user} left the chat`;
       user.classList.add('center');
       messages.append(user);
     })

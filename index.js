@@ -10,18 +10,23 @@ app.get('/', (req, res) => {
 });
 
 const users = {};
+let online=0;
 
 io.on('connection', (socket) => {
     socket.on('new-user',name=>{
       users[socket.id]=name;
-      socket.broadcast.emit('user-joined',name);
+      online=Object.keys(users).length;
+      socket.broadcast.emit('user-joined',{name:name,online:online});
+      io.emit('accepted',online);
     });
     socket.on('send',message=>{
       socket.broadcast.emit('receive',{msg:message.msg,user:message.user, position:'left'});
     })
     socket.on('disconnect', () => {
-      socket.broadcast.emit('user-left',users[socket.id]);
+      online--;
+      socket.broadcast.emit('user-left',{user:users[socket.id],online:online});
       delete users[socket.id];
+      online=Object.keys(users).length;
     });
   });
 
