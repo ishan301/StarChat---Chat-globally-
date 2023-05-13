@@ -10,4 +10,4 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash && \
 COPY . .
 
 RUN BACKGROUND node index.js
-EXPOSE WEBSITE http://localhost:80
+EXPOSE WEBSITE http://localhost
